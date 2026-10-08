@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NEXORA Deployment Guide</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f5f7fa;
+    color: #1a1a2e;
+    line-height: 1.7;
+    font-size: 14px;
+  }
+  .cover {
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+    padding: 80px 60px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .cover h1 {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    color: #e94560;
+  }
+  .cover h2 {
+    font-size: 20px;
+    font-weight: 400;
+    color: #a8b2d8;
+    margin-bottom: 30px;
+  }
+  .cover .stack-badges {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .badge {
+    background: rgba(233, 69, 96, 0.2);
+    border: 1px solid #e94560;
+    color: #e94560;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .badge.green { background: rgba(39, 174, 96, 0.2); border-color: #27ae60; color: #27ae60; }
+  .badge.blue  { background: rgba(52, 152, 219, 0.2); border-color: #3498db; color: #3498db; }
+  .badge.orange{ background: rgba(230, 126, 34, 0.2); border-color: #e67e22; color: #e67e22; }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 40px 40px; }
+
+  .section {
+    background: white;
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    border-left: 5px solid #e94560;
+    page-break-inside: avoid;
+  }
+  .section.green  { border-left-color: #27ae60; }
+  .section.blue   { border-left-color: #3498db; }
+  .section.orange { border-left-color: #e67e22; }
+  .section.purple { border-left-color: #8e44ad; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .step-num {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #e94560;
+    color: white;
+    font-weight: 800;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-num.green  { background: #27ae60; }
+  .step-num.blue   { background: #3498db; }
+  .step-num.orange { background: #e67e22; }
+  .step-num.purple { background: #8e44ad; }
+
+  .section h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+  .section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 20px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed #e0e0e0;
+  }
+
+  ol, ul { padding-left: 22px; }
+  li { margin-bottom: 8px; }
+  li strong { color: #e94560; }
+
+  code {
+    background: #1e2a3a;
+    color: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+  }
+
+  .code-block {
+    background: #1e2a3a;
+    color: #a8d8ea;
+    padding: 18px 22px;
+    border-radius: 10px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    margin: 12px 0;
+    overflow-x: auto;
+    line-height: 1.8;
+    white-space: pre;
+    border: 1px solid #2d3748;
+  }
+  .code-block .comment { color: #6b7280; }
+  .code-block .key { color: #f6c90e; }
+  .code-block .val { color: #79c7e3; }
+  .code-block .cmd { color: #98d8c8; }
+
+  .tip {
+    background: #fff9e6;
+    border: 1px solid #f6c90e;
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin: 14px 0;
+    font-size: 13px;
+  }
+  .tip::before { content: "💡 Tip: "; font-weight: 700; color: #d4a017; }
+
+  .warning {
+    background: #fff0f0;
+    border: 1px solid #e94560;
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin: 14px 0;
+    font-size: 13px;
+  }
+  .warning::before { content: "⚠️ Important: "; font-weight: 700; color: #e94560; }
+
+  .success {
+    background: #f0fff4;
+    border: 1px solid #27ae60;
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin: 14px 0;
+    font-size: 13px;
+  }
+  .success::before { content: "✅ "; font-weight: 700; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 13px;
+  }
+  th {
+    background: #1a1a2e;
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e8edf2;
+  }
+  tr:nth-child(even) td { background: #f8f9fa; }
+  td code { font-size: 12px; }
+
+  .divider {
+    border: none;
+    border-top: 2px dashed #e0e0e0;
+    margin: 10px 0 18px;
+  }
+
+  .flow-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 16px 0;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .flow-item {
+    background: white;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: #1a1a2e;
+  }
+  .flow-arrow { color: #e94560; font-size: 18px; font-weight: 800; }
+
+  .footer {
+    background: #1a1a2e;
+    color: #a8b2d8;
+    text-align: center;
+    padding: 28px;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  @media print {
+    body { background: white; }
+    .section { box-shadow: none; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ COVER ═══════════════ -->
+<div class="cover">
+  <h1>NEXORA</h1>
+  <h2>Complete Deployment Guide — Step by Step</h2>
+  <p style="color:#8892b0; font-size:14px;">MongoDB Atlas &nbsp;→&nbsp; Render (Backend) &nbsp;→&nbsp; Vercel (Frontend)</p>
+  <div class="stack-badges">
+    <span class="badge">React + Vite</span>
+    <span class="badge green">Node.js + Express</span>
+    <span class="badge blue">MongoDB Atlas</span>
+    <span class="badge orange">Render + Vercel</span>
+  </div>
+  <p style="color:#4a5568; margin-top:30px; font-size:12px;">Generated for: NEXORA Project &nbsp;|&nbsp; October 2026</p>
+</div>
+
+<!-- ═══════════════ CONTENT ═══════════════ -->
+<div class="content">
+
+  <!-- Architecture Overview -->
+  <div class="section blue" style="margin-top:32px;">
+    <div class="section-header">
+      <div class="step-num blue" style="font-size:20px;">🗺</div>
+      <h2>Architecture Overview</h2>
+    </div>
+    <div class="flow-box">
+      <div class="flow-item">👤 User (Browser)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">🌐 Vercel<br/><small style="font-weight:400;color:#666">React Frontend</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">⚙️ Render<br/><small style="font-weight:400;color:#666">Express API</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">🍃 MongoDB Atlas<br/><small style="font-weight:400;color:#666">Database</small></div>
+    </div>
+    <table>
+      <tr><th>Service</th><th>Platform</th><th>What it does</th></tr>
+      <tr><td>Frontend</td><td>Vercel</td><td>Serves React app (Vite build)</td></tr>
+      <tr><td>Backend API</td><td>Render</td><td>Runs Express + Node.js server</td></tr>
+      <tr><td>Database</td><td>MongoDB Atlas</td><td>Cloud MongoDB cluster</td></tr>
+    </table>
+  </div>
+
+  <!-- PRE-REQUISITES -->
+  <div class="section purple">
+    <div class="section-header">
+      <div class="step-num purple">0</div>
+      <h2>Pre-Requisites — Account Setup</h2>
+    </div>
+    <p>Pehle ye teen accounts bana lo (free hai sab):</p>
+    <ol style="margin-top:12px;">
+      <li>
+        <strong>GitHub:</strong> <a href="https://github.com">github.com</a> — apna code yahan push karna hoga.
+      </li>
+      <li>
+        <strong>MongoDB Atlas:</strong> <a href="https://cloud.mongodb.com">cloud.mongodb.com</a> — free M0 cluster milega.
+      </li>
+      <li>
+        <strong>Render:</strong> <a href="https://render.com">render.com</a> — backend deploy hoga yahan.
+      </li>
+      <li>
+        <strong>Vercel:</strong> <a href="https://vercel.com">vercel.com</a> — frontend deploy hoga yahan.
+      </li>
+    </ol>
+    <div class="tip">Sabse pehle apna NEXORA project GitHub pe push kar do. Bina GitHub ke Render aur Vercel kaam nahi karenge.</div>
+  </div>
+
+  <!-- STEP 1: CODE CHANGES -->
+  <div class="section" style="border-left-color:#e94560;">
+    <div class="section-header">
+      <div class="step-num">1</div>
+      <h2>Code Changes Before Deploy</h2>
+    </div>
+    <p>Deploy se pehle kuch zaroori changes karne honge code mein.</p>
+
+    <h3>1A — Backend: Fix CORS for Production</h3>
+    <p>File: <code>backend/src/app.js</code></p>
+    <p>Abhi CORS sirf <code>localhost:5173</code> allow karta hai. Isse update karo:</p>
+    <div class="code-block"><span class="comment">// Purana code (line ~9):</span>
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+
+<span class="comment">// Naya code — environment variable use karo:</span>
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  credentials: true,
+}));</div>
+    <div class="warning">Ye change karna bahut zaroori hai. Bina iske frontend Render API ko access nahi kar payega.</div>
+
+    <h3>1B — Frontend: Already Ready</h3>
+    <p>File: <code>frontend/src/services/api.js</code></p>
+    <p>Frontend already <code>VITE_API_URL</code> environment variable use kar raha hai — koi code change ki zaroorat nahi:</p>
+    <div class="code-block"><span class="comment">// Ye line already sahi hai:</span>
+baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api"</div>
+    <div class="success">Frontend code deploy ke liye ready hai!</div>
+
+    <h3>1C — Push to GitHub</h3>
+    <p>In commands ko project root <code>NEXORA/</code> mein run karo:</p>
+    <div class="code-block"><span class="cmd">git add .</span>
+<span class="cmd">git commit -m "fix: update cors for production deployment"</span>
+<span class="cmd">git push origin main</span></div>
+  </div>
+
+  <!-- STEP 2: MONGODB ATLAS -->
+  <div class="section blue">
+    <div class="section-header">
+      <div class="step-num blue">2</div>
+      <h2>MongoDB Atlas — Database Setup</h2>
+    </div>
+    <p>Backend ko ek live database chahiye. MongoDB Atlas bilkul free hai (512 MB storage).</p>
+
+    <h3>2A — Free Cluster Banao</h3>
+    <ol>
+      <li><strong>cloud.mongodb.com</strong> pe jao aur Sign Up / Log In karo.</li>
+      <li>Green <strong>"Build a Database"</strong> button pe click karo.</li>
+      <li><strong>M0 FREE</strong> option select karo (512 MB free storage).</li>
+      <li>Cloud provider: <strong>AWS</strong>, Region: <strong>Mumbai (ap-south-1)</strong> ya jo closest ho.</li>
+      <li>Cluster name: <strong>nexora-cluster</strong> (ya kuch bhi rakho).</li>
+      <li><strong>"Create"</strong> button dabao. Cluster create hone mein ~2 minute lagenge.</li>
+    </ol>
+
+    <h3>2B — Database User Banao</h3>
+    <ol>
+      <li>Left sidebar mein <strong>Database Access</strong> pe jao.</li>
+      <li><strong>"Add New Database User"</strong> click karo.</li>
+      <li>Authentication method: <strong>Password</strong></li>
+      <li>Username: <strong>nexora-user</strong></li>
+      <li>Password: ek strong password banao, <strong>yaad rakhna ya copy karna</strong> (e.g., <code>NexoraPass@2026</code>)</li>
+      <li>Database User Privileges: <strong>Atlas admin</strong></li>
+      <li><strong>"Add User"</strong> click karo.</li>
+    </ol>
+    <div class="warning">Password mein @ # $ jaise special characters avoid karo, warna URI mein encoding issue aata hai.</div>
+
+    <h3>2C — Network Access Allow Karo</h3>
+    <ol>
+      <li>Left sidebar mein <strong>Network Access</strong> pe jao.</li>
+      <li><strong>"Add IP Address"</strong> click karo.</li>
+      <li><strong>"Allow Access from Anywhere"</strong> button dabao — IP: <code>0.0.0.0/0</code> fill ho jayega.</li>
+      <li><strong>"Confirm"</strong> click karo.</li>
+    </ol>
+    <div class="tip">Production mein sirf Render ka IP allow karna better hota hai, lekin abhi ke liye 0.0.0.0/0 chalega.</div>
+
+    <h3>2D — Connection String Copy Karo</h3>
+    <ol>
+      <li>Left sidebar mein <strong>Database</strong> pe jao.</li>
+      <li>Cluster ke samne <strong>"Connect"</strong> button dabao.</li>
+      <li><strong>"Drivers"</strong> option select karo.</li>
+      <li>Driver: <strong>Node.js</strong>, Version: <strong>5.5 or later</strong></li>
+      <li>Connection string copy karo, kuch aisa dikhega:</li>
+    </ol>
+    <div class="code-block">mongodb+srv://nexora-user:&lt;password&gt;@nexora-cluster.xxxxxx.mongodb.net/?retryWrites=true&w=majority</div>
+    <p style="margin-top:10px;"><code>&lt;password&gt;</code> ki jagah apna actual password daalo. Final string kuch aisi hogi:</p>
+    <div class="code-block">mongodb+srv://nexora-user:NexoraPass2026@nexora-cluster.abc12.mongodb.net/nexora?retryWrites=true&amp;w=majority</div>
+    <div class="success">MongoDB Atlas setup complete! Ab ye connection string save karke rakho — Render mein kaam aayegi.</div>
+  </div>
+
+  <!-- STEP 3: RENDER BACKEND -->
+  <div class="section green">
+    <div class="section-header">
+      <div class="step-num green">3</div>
+      <h2>Render — Backend Deploy</h2>
+    </div>
+    <p>Ab Express backend ko Render pe deploy karte hain.</p>
+
+    <h3>3A — Render pe Sign Up / Login</h3>
+    <ol>
+      <li><strong>render.com</strong> pe jao.</li>
+      <li><strong>"Get Started for Free"</strong> click karo.</li>
+      <li><strong>GitHub se login karo</strong> — ye important hai, GitHub repo connect hogi.</li>
+    </ol>
+
+    <h3>3B — New Web Service Create Karo</h3>
+    <ol>
+      <li>Dashboard mein <strong>"New +"</strong> button click karo.</li>
+      <li><strong>"Web Service"</strong> select karo.</li>
+      <li><strong>"Connect a repository"</strong> — apni <strong>NEXORA GitHub repo</strong> select karo.</li>
+      <li>Agar repo nahi dikh rahi, <strong>"Configure account"</strong> se GitHub permissions do.</li>
+    </ol>
+
+    <h3>3C — Web Service Configure Karo</h3>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>Name</td><td><code>nexora-backend</code></td></tr>
+      <tr><td>Region</td><td>Singapore (Asia ke liye best)</td></tr>
+      <tr><td>Branch</td><td><code>main</code></td></tr>
+      <tr><td><strong>Root Directory</strong></td><td><code>backend</code> ← <strong>zaroor daalo</strong></td></tr>
+      <tr><td>Runtime</td><td>Node</td></tr>
+      <tr><td>Build Command</td><td><code>npm install</code></td></tr>
+      <tr><td>Start Command</td><td><code>npm start</code></td></tr>
+      <tr><td>Plan</td><td>Free</td></tr>
+    </table>
+    <div class="warning">Root Directory mein <code>backend</code> daalna bahut zaroori hai, warna Render root folder se build karega aur fail ho jayega.</div>
+
+    <h3>3D — Environment Variables Add Karo</h3>
+    <p>Same page pe neeche <strong>"Environment Variables"</strong> section milega. Ye variables add karo:</p>
+    <table>
+      <tr><th>Key</th><th>Value</th></tr>
+      <tr><td><code>NODE_ENV</code></td><td><code>production</code></td></tr>
+      <tr><td><code>PORT</code></td><td><code>5000</code></td></tr>
+      <tr><td><code>MONGO_URI</code></td><td>Step 2D wali MongoDB connection string</td></tr>
+      <tr><td><code>CLIENT_URL</code></td><td>Abhi ke liye khali chhodo — Vercel deploy ke baad fill karenge</td></tr>
+    </table>
+
+    <h3>3E — Deploy Karo</h3>
+    <ol>
+      <li><strong>"Create Web Service"</strong> button dabao.</li>
+      <li>Render automatically build start kar dega (~3-5 minute).</li>
+      <li>Logs mein ye lines dikhni chahiye:
+        <div class="code-block">🚀 Server running on http://0.0.0.0:5000
+✅ MongoDB Connected
+📦 Environment: production</div>
+      </li>
+      <li>Top pe tumhara URL milega: <code>https://nexora-backend.onrender.com</code></li>
+    </ol>
+
+    <h3>3F — Test Karo</h3>
+    <p>Browser mein ye URL open karo:</p>
+    <div class="code-block">https://nexora-backend.onrender.com/</div>
+    <p>Response aana chahiye:</p>
+    <div class="code-block">{ "message": "🚀 NEXORA API is running..." }</div>
+    <div class="success">Backend successfully deployed on Render! URL save kar lo — Vercel mein kaam aayega.</div>
+    <div class="tip">Free Render service 15 min inactivity ke baad "sleep" ho jati hai. Pehla request ~30 sec slow lagega — ye normal hai.</div>
+  </div>
+
+  <!-- STEP 4: VERCEL FRONTEND -->
+  <div class="section orange">
+    <div class="section-header">
+      <div class="step-num orange">4</div>
+      <h2>Vercel — Frontend Deploy</h2>
+    </div>
+    <p>Ab React frontend ko Vercel pe deploy karte hain.</p>
+
+    <h3>4A — Vercel pe Sign Up / Login</h3>
+    <ol>
+      <li><strong>vercel.com</strong> pe jao.</li>
+      <li><strong>"Start Deploying"</strong> click karo.</li>
+      <li><strong>GitHub se login karo</strong>.</li>
+    </ol>
+
+    <h3>4B — New Project Import Karo</h3>
+    <ol>
+      <li>Dashboard mein <strong>"Add New... → Project"</strong> click karo.</li>
+      <li>Apni <strong>NEXORA GitHub repo</strong> ke samne <strong>"Import"</strong> click karo.</li>
+    </ol>
+
+    <h3>4C — Project Configure Karo</h3>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>Project Name</td><td><code>nexora-frontend</code></td></tr>
+      <tr><td><strong>Root Directory</strong></td><td><code>frontend</code> ← <strong>zaroor change karo</strong></td></tr>
+      <tr><td>Framework Preset</td><td>Vite (auto-detect ho jayega)</td></tr>
+      <tr><td>Build Command</td><td><code>npm run build</code></td></tr>
+      <tr><td>Output Directory</td><td><code>dist</code></td></tr>
+    </table>
+    <div class="warning">Root Directory mein <code>frontend</code> daalo, warna Vercel root se build karega aur fail hoga.</div>
+
+    <h3>4D — Environment Variables Add Karo</h3>
+    <p><strong>"Environment Variables"</strong> section mein ye add karo:</p>
+    <table>
+      <tr><th>Key</th><th>Value</th></tr>
+      <tr><td><code>VITE_API_URL</code></td><td><code>https://nexora-backend.onrender.com/api</code></td></tr>
+    </table>
+    <div class="warning">Value mein <code>/api</code> lagana mat bhoolna! URL exactly aisa hona chahiye: <code>https://nexora-backend.onrender.com/api</code></div>
+
+    <h3>4E — Deploy Karo</h3>
+    <ol>
+      <li><strong>"Deploy"</strong> button dabao.</li>
+      <li>Vercel ~2 minute mein build aur deploy kar dega.</li>
+      <li>Deployment complete hone pe URL milega: <code>https://nexora-frontend.vercel.app</code></li>
+    </ol>
+    <div class="success">Frontend deployed on Vercel!</div>
+  </div>
+
+  <!-- STEP 5: CORS FIX -->
+  <div class="section" style="border-left-color:#8e44ad;">
+    <div class="section-header">
+      <div class="step-num purple">5</div>
+      <h2>Final Connection — CORS Update</h2>
+    </div>
+    <p>Ab Vercel ka URL mil gaya hai, to Render mein CLIENT_URL update karo.</p>
+
+    <h3>5A — Render Environment Variable Update Karo</h3>
+    <ol>
+      <li>Render dashboard mein apni <strong>nexora-backend</strong> service pe jao.</li>
+      <li>Left mein <strong>"Environment"</strong> tab pe click karo.</li>
+      <li><code>CLIENT_URL</code> variable find karo aur value set karo:</li>
+    </ol>
+    <div class="code-block">CLIENT_URL = https://nexora-frontend.vercel.app</div>
+    <ol start="4">
+      <li><strong>"Save Changes"</strong> click karo.</li>
+      <li>Render automatically redeploy kar dega (~2 minute).</li>
+    </ol>
+
+    <h3>5B — Final Test</h3>
+    <ol>
+      <li>Browser mein Vercel URL open karo: <code>https://nexora-frontend.vercel.app</code></li>
+      <li>App load hona chahiye aur API calls kaam karni chahiye.</li>
+      <li>Browser DevTools (F12) → Network tab mein dekho — koi CORS error nahi aana chahiye.</li>
+    </ol>
+    <div class="success">🎉 NEXORA fully deployed hai! Frontend ↔ Backend ↔ Database sab connected hain.</div>
+  </div>
+
+  <!-- TROUBLESHOOTING -->
+  <div class="section" style="border-left-color:#e67e22;">
+    <div class="section-header">
+      <div class="step-num orange">🔧</div>
+      <h2>Common Errors &amp; Fixes</h2>
+    </div>
+
+    <h3>❌ CORS Error (blocked by CORS policy)</h3>
+    <p><strong>Cause:</strong> <code>CLIENT_URL</code> Render mein galat set hai ya backend redeploy nahi hua.</p>
+    <p><strong>Fix:</strong> Render Environment mein <code>CLIENT_URL</code> check karo — trailing slash (<code>/</code>) nahi hona chahiye. Phir manual redeploy karo.</p>
+
+    <h3>❌ MongoDB Connection Failed</h3>
+    <p><strong>Cause:</strong> <code>MONGO_URI</code> galat hai ya IP whitelist nahi hua.</p>
+    <p><strong>Fix:</strong> MongoDB Atlas → Network Access mein <code>0.0.0.0/0</code> add karo. Connection string mein password sahi hai confirm karo.</p>
+
+    <h3>❌ Render Build Failed — "Cannot find module"</h3>
+    <p><strong>Cause:</strong> Root Directory <code>backend</code> set nahi ki.</p>
+    <p><strong>Fix:</strong> Render service settings mein Root Directory ko <code>backend</code> set karo aur redeploy karo.</p>
+
+    <h3>❌ Vercel Build Failed — "vite: not found"</h3>
+    <p><strong>Cause:</strong> Root Directory <code>frontend</code> set nahi ki.</p>
+    <p><strong>Fix:</strong> Vercel project settings → Root Directory → <code>frontend</code> set karo aur redeploy karo.</p>
+
+    <h3>❌ API calls fail — 404 Not Found</h3>
+    <p><strong>Cause:</strong> <code>VITE_API_URL</code> mein <code>/api</code> bhool gaye.</p>
+    <p><strong>Fix:</strong> Vercel → Project Settings → Environment Variables → <code>VITE_API_URL</code> = <code>https://nexora-backend.onrender.com/api</code> (with /api).</p>
+
+    <h3>❌ Render app slow on first request</h3>
+    <p><strong>Cause:</strong> Free tier pe service 15 min baad sleep hoti hai.</p>
+    <p><strong>Fix:</strong> Normal behaviour hai. Upgrade to paid plan ya UptimeRobot se ping karte raho free mein.</p>
+  </div>
+
+  <!-- QUICK REFERENCE -->
+  <div class="section blue">
+    <div class="section-header">
+      <div class="step-num blue">📋</div>
+      <h2>Quick Reference — All URLs &amp; Variables</h2>
+    </div>
+    <table>
+      <tr><th>What</th><th>URL / Value</th></tr>
+      <tr><td>Frontend (Vercel)</td><td><code>https://nexora-frontend.vercel.app</code></td></tr>
+      <tr><td>Backend API (Render)</td><td><code>https://nexora-backend.onrender.com</code></td></tr>
+      <tr><td>API Base URL</td><td><code>https://nexora-backend.onrender.com/api</code></td></tr>
+      <tr><td>MongoDB Atlas</td><td><code>cloud.mongodb.com</code></td></tr>
+    </table>
+
+    <h3>Render Environment Variables</h3>
+    <div class="code-block"><span class="key">NODE_ENV</span>    = <span class="val">production</span>
+<span class="key">PORT</span>        = <span class="val">5000</span>
+<span class="key">MONGO_URI</span>   = <span class="val">mongodb+srv://nexora-user:PASSWORD@nexora-cluster.xxxxx.mongodb.net/nexora?retryWrites=true&amp;w=majority</span>
+<span class="key">CLIENT_URL</span>  = <span class="val">https://nexora-frontend.vercel.app</span></div>
+
+    <h3>Vercel Environment Variables</h3>
+    <div class="code-block"><span class="key">VITE_API_URL</span> = <span class="val">https://nexora-backend.onrender.com/api</span></div>
+
+    <h3>Deployment Checklist</h3>
+    <ul>
+      <li>☐ app.js mein CORS <code>process.env.CLIENT_URL</code> se update kiya</li>
+      <li>☐ GitHub pe push kiya</li>
+      <li>☐ MongoDB Atlas M0 cluster create kiya</li>
+      <li>☐ MongoDB user + password set kiya</li>
+      <li>☐ MongoDB Network Access: <code>0.0.0.0/0</code> add kiya</li>
+      <li>☐ Render pe backend deploy kiya (Root Dir: <code>backend</code>)</li>
+      <li>☐ Render environment variables set kiye</li>
+      <li>☐ Vercel pe frontend deploy kiya (Root Dir: <code>frontend</code>)</li>
+      <li>☐ Vercel <code>VITE_API_URL</code> set kiya</li>
+      <li>☐ Render <code>CLIENT_URL</code> Vercel URL se update kiya</li>
+      <li>☐ Final test — frontend se API call kaam kar rahi hai</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p><strong style="color:#e94560;">NEXORA</strong> Deployment Guide &nbsp;|&nbsp; MongoDB Atlas + Render + Vercel</p>
+  <p style="margin-top:6px; color:#4a5568;">To print as PDF: Ctrl+P → Save as PDF → Margins: None → Background graphics: ON</p>
+</div>
+
+</body>
+</html>
